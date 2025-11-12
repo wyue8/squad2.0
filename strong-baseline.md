@@ -1,5 +1,4 @@
 
-````markdown
 # **Strong Baseline – BiDAF on SQuAD v2.0**
 
 ## **Overview**
