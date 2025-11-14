@@ -71,6 +71,21 @@ Training pipeline is identical to the strong baseline, aside from loading pretra
 
 ---
 
+### Downloading GloVe Embeddings
+
+To run this extension with pretrained embeddings, download the 100-dimensional GloVe vectors:
+
+https://nlp.stanford.edu/data/glove.6B.zip
+
+Extract the archive and place:
+
+`glove.6B.100d.txt` → `data/` directory.
+
+If the file is not found, the code will automatically fall back to **random embeddings**, printing:
+
+`Warning: GloVe file not found. Using random embeddings.`
+
+
 ## **Usage**
 
 ### **Train + Predict on Dev Set**
