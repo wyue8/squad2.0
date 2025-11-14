@@ -18,7 +18,7 @@ The BiDAF baseline follows the original structure proposed by Seo et al. (2017):
 |------------|--------------|
 | **Embedding layer** | Randomly initialized embeddings (size 100) converted from token IDs. |
 | **Contextual encoders** | Two bidirectional LSTMs encode context and question representations independently. |
-| **Attention flow layer** | Computes bidirectional attention between context and question using the similarity matrix: \\(S_{ij} = w^T [c_i; q_j; c_i * q_j]\\). |
+| **Attention flow layer** | Computes bidirectional attention between context and question using the similarity matrix. |
 | **Modeling layer** | Another BiLSTM integrates the attended features to capture global context. |
 | **Output layer** | Two linear classifiers predict start and end token indices for each answer span. |
 
@@ -133,7 +133,7 @@ python -Xutf8 score.py data/test_v2.json outputs/pred_test_strong.json
 ## **Results Summary**
 
 | Dataset | Exact Match (EM) | F1 Score | HasAns EM | HasAns F1 | NoAns EM | NoAns F1 |
-|----------|------------------|-----------|------------|------------|-----------|
+|----------|------------------|-----------|------------|------------|-----------|-----------|
 | **Dev** | 37.86 | 37.86 | 0.0169 | 0.0169 | 75.59 | 75.59 |
 | **Test** | 33.07 | 33.07 | 0.00 | 0.00 | 97.62 | 97.62 |
 
