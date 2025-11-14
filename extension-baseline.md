@@ -71,6 +71,8 @@ Training pipeline is identical to the strong baseline, aside from loading pretra
 
 ---
 
+## **Usage**
+
 ### Downloading GloVe Embeddings
 
 To run this extension with pretrained embeddings, download the 100-dimensional GloVe vectors:
@@ -84,9 +86,6 @@ Extract the archive and place:
 If the file is not found, the code will automatically fall back to **random embeddings**, printing:
 
 `Warning: GloVe file not found. Using random embeddings.`
-
-
-## **Usage**
 
 ### **Train + Predict on Dev Set**
 ```bash
