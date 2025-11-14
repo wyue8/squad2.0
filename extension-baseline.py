@@ -19,9 +19,7 @@ import numpy as np
 import torch, torch.nn as nn, torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset
 
-# -----------------------
-# Utility / Setup
-# -----------------------
+
 SEED = 42
 random.seed(SEED)
 torch.manual_seed(SEED)
@@ -30,9 +28,6 @@ PAD, UNK, NOANS = "<pad>", "<unk>", "<no_answer>"
 def simple_tokenize(text):
     return re.findall(r"\S+", text)
 
-# -----------------------
-# Data Processing
-# -----------------------
 def read_squad(path):
     with open(path, "r", encoding="utf-8") as f:
         root = json.load(f)
@@ -73,9 +68,6 @@ def build_vocab(exs, min_freq=2, max_size=50000):
 def tokens_to_ids(toks, vocab):
     return [vocab.get(t.lower(), vocab[UNK]) for t in toks]
 
-# -----------------------
-# Dataset
-# -----------------------
 class SquadDataset(Dataset):
     def __init__(self, exs, vocab, max_ctx=400, max_q=40):
         self.data = []
@@ -99,9 +91,6 @@ def collate_fn(batch, pad_id=0):
         c_pad[i, :len(c)] = torch.tensor(c)
     return ids, q_pad, c_pad, torch.tensor(starts), torch.tensor(ends)
 
-# -----------------------
-# Load GloVe embeddings
-# -----------------------
 def load_glove_embeddings(glove_path, vocab, emb_dim=100):
     print(f" Loading GloVe embeddings from {glove_path} ...")
     glove = {}
@@ -115,7 +104,6 @@ def load_glove_embeddings(glove_path, vocab, emb_dim=100):
             glove[word] = vec
     print(f" Loaded {len(glove):,} GloVe vectors.")
 
-    # Initialize embedding matrix
     emb_matrix = np.random.normal(scale=0.6, size=(len(vocab), emb_dim)).astype(np.float32)
     for word, idx in vocab.items():
         if word in glove:
@@ -123,9 +111,6 @@ def load_glove_embeddings(glove_path, vocab, emb_dim=100):
     print(f" Created embedding matrix of shape {emb_matrix.shape}")
     return torch.tensor(emb_matrix)
 
-# -----------------------
-# BiDAF Model
-# -----------------------
 class BiDAF(nn.Module):
     def __init__(self, vocab_size, emb_dim=100, hid_dim=64, pretrained_emb=None):
         super().__init__()
@@ -156,9 +141,6 @@ class BiDAF(nn.Module):
         M, _ = self.mod(G)
         return self.start(M).squeeze(-1), self.end(M).squeeze(-1)
 
-# -----------------------
-# Training & Prediction
-# -----------------------
 def train_model(model, loader, device, epochs=2, lr=2e-3):
     model.to(device)
     opt = torch.optim.Adam(model.parameters(), lr=lr)
@@ -191,9 +173,6 @@ def predict(model, loader, device, out_path):
         json.dump(preds, f, indent=2, ensure_ascii=False)
     print(f" Saved {len(preds)} predictions → {out_path}")
 
-# -----------------------
-# Main Flow
-# -----------------------
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--gold", required=True, help="Path to dev/test JSON file for evaluation.")
@@ -212,7 +191,6 @@ def main():
     vocab = build_vocab(train_ex)
     print(f"Vocab size: {len(vocab)}")
 
-    # Load GloVe
     if os.path.exists(args.glove):
         pretrained_emb = load_glove_embeddings(args.glove, vocab)
     else:
