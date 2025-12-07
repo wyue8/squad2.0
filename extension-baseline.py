@@ -118,28 +118,39 @@ class BiDAF(nn.Module):
         if pretrained_emb is not None:
             print(" Using pre-trained GloVe embeddings.")
             self.emb.weight.data.copy_(pretrained_emb)
+
         self.enc_q = nn.LSTM(emb_dim, hid_dim, bidirectional=True, batch_first=True)
         self.enc_c = nn.LSTM(emb_dim, hid_dim, bidirectional=True, batch_first=True)
-        self.mod = nn.LSTM(8*hid_dim, hid_dim, bidirectional=True, batch_first=True)
-        self.sim = nn.Linear(6*hid_dim, 1)
+
+        self.mha = nn.MultiheadAttention(embed_dim=2*hid_dim, num_heads=4, batch_first=True)
+        self.mod = nn.LSTM(4 * 2 * hid_dim, hid_dim, bidirectional=True, batch_first=True)
+
         self.start = nn.Linear(2*hid_dim, 1)
-        self.end = nn.Linear(2*hid_dim, 1)
+        self.end   = nn.Linear(2*hid_dim, 1)
 
     def forward(self, q, c):
-        q_out, _ = self.enc_q(self.emb(q))
-        c_out, _ = self.enc_c(self.emb(c))
-        B, Lc, H2 = c_out.shape
-        Lq = q_out.shape[1]
-        c_exp = c_out.unsqueeze(2).expand(B, Lc, Lq, H2)
-        q_exp = q_out.unsqueeze(1).expand(B, Lc, Lq, H2)
-        S = self.sim(torch.cat([c_exp, q_exp, c_exp*q_exp], dim=-1)).squeeze(-1)
-        a = F.softmax(S, dim=-1)
-        c2q = torch.bmm(a, q_out)
-        b = F.softmax(S.max(dim=-1)[0], dim=-1)
-        q2c = torch.bmm(b.unsqueeze(1), c_out).repeat(1, Lc, 1)
-        G = torch.cat([c_out, c2q, c_out*c2q, c_out*q2c], dim=-1)
+        q_out, _ = self.enc_q(self.emb(q))   # B × Lq × 2H
+        c_out, _ = self.enc_c(self.emb(c))   # B × Lc × 2H
+
+        attn_output, attn_weights = self.mha(
+            query=c_out,
+            key=q_out,
+            value=q_out
+        )  # attn_output: B × Lc × 2H
+
+        q_summary = attn_output.mean(dim=1, keepdim=True).repeat(1, c_out.size(1), 1)
+
+        G = torch.cat([
+            c_out,                     # B × Lc × 2H
+            attn_output,               # B × Lc × 2H
+            c_out * attn_output,       # B × Lc × 2H
+            q_summary                  # B × Lc × 2H
+        ], dim=-1)  # final dim = 4 * 2H
+
         M, _ = self.mod(G)
+
         return self.start(M).squeeze(-1), self.end(M).squeeze(-1)
+
 
 def train_model(model, loader, device, epochs=2, lr=2e-3):
     model.to(device)
