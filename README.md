@@ -8,6 +8,12 @@ Simple Baseline:
   python3 simple-baseline.py --gold data/test_v2.json --out outputs/pred_test_simple.json
 ```
 
+Strong Baseline:
+```bash
+  python strong-baseline.py --gold data/dev_v2.json  --out outputs/pred_dev_strong.json
+  python strong-baseline.py --gold data/test_v2.json --out outputs/pred_test_strong.json
+```
+
 Extended Models:
 ```bash
   python extension-baseline.py --gold data/dev_v2.json  --out outputs/pred_dev_glove.json
