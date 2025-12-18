@@ -1,12 +1,18 @@
 # Outputs & Evaluation
 
 # Generate Outputs
-Baselines: 
+Simple Baseline: 
+
+```bash
+  python3 simple-baseline.py --gold data/dev_v2.json --out outputs/pred_dev_simple.json
+  python3 simple-baseline.py --gold data/test_v2.json --out outputs/pred_test_simple.json
+```
 
 Extended Models:
+```bash
   python extension-baseline.py --gold data/dev_v2.json  --out outputs/pred_dev_glove.json
   python extension-baseline.py --gold data/test_v2.json --out outputs/pred_test_glove.json
-
+```
 We provide a lightweight evaluation script (`score.py`) that computes **SQuAD 2.0 EM/F1** (overall + HasAns/NoAns breakdown) given:
 
 1. a gold SQuAD v2.0 JSON file, and
