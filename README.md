@@ -1,4 +1,11 @@
-# Evaluation (Scoring Predictions)
+# Outputs & Evaluation
+
+# Generate Outputs
+Baselines: 
+
+Extended Models:
+  python extension-baseline.py --gold data/dev_v2.json  --out outputs/pred_dev_glove.json
+  python extension-baseline.py --gold data/test_v2.json --out outputs/pred_test_glove.json
 
 We provide a lightweight evaluation script (`score.py`) that computes **SQuAD 2.0 EM/F1** (overall + HasAns/NoAns breakdown) given:
 
